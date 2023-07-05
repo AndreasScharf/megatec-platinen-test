@@ -30,15 +30,20 @@ if not hw == 'win':
     from mobil_com import mobilcom
 
 
+
 def main():
     window = tk.Tk()
     window.title("Megatec Test")
     window.geometry("800x400")
+    window.attributes("-fullscreen", True)
 
     window_panel = tk.Frame(window, height=400, width=800)
     window_panel.pack(fill=tk.X, expand=False)
+    
+    def quit():
+        window.destroy()
     # Create a window and pass it to the Application object
-    App(window_panel, "Megatec Test")
+    App(window_panel, "Megatec Test", quit)
 
 class Log():
     def __init__(self, window):
@@ -123,10 +128,11 @@ Test am {date}
 
 # Code to add widgets will go here...
 class App:
-    def __init__(self, window, title):
+    def __init__(self, window, title, quit):
         self.window = window
         self.looper = None
         
+        self.quit = quit
         self.page_index = 0
         
         self.log = Log(window)
@@ -172,8 +178,12 @@ class App:
             self.body, image=self.frapplogo_pic, height=75, width=100)
         frapplogo.pack()
         
+        def next():
+            if not self.log.serialnr.get() == '':
+                self.loadI2CAdresses()
+        
         self.navigator.back = None
-        self.navigator.next = self.loadI2CAdresses
+        self.navigator.next = next
 
     def loadI2CAdresses(self):
         self.clearFrame(self.body)
@@ -614,7 +624,7 @@ class App:
         sendBtn.pack(pady=5)
         
         self.navigator.back = self.loadMobilSim
-        self.navigator.next = None
+        self.navigator.next = self.quit
         
 if __name__ == "__main__":
     main()
