@@ -1,4 +1,4 @@
-### Megatec Platinen Test
+# Megatec Platinen Test
 
 ## Installation
 ```
@@ -24,7 +24,7 @@ Exec=/usr/bin/python3 /home/pi/test/index.py' > /home/pi/.config/autostart/test.
 
 chmod +x /home/pi/.config/autostart/test.desktop
 ```
-# Details 
+### Details 
 die Anleitung habe ich von hier
 https://medium.com/@arslion/starting-python-gui-program-on-raspberry-pi-startup-56fb4e451cc1
 
@@ -42,5 +42,5 @@ python3 index.py
 
 ## Senden in eueren Netzwerkordner
 In der index.py Zeile 606 kann der Sigi gerne einen kleinen Block für eure Netzwerkablage machen
-Oder Ihr gebt mir die nötigen Infos und ich mache es euch rein
+Oder Ihr gebt mir die notwendigen Infos und ich mache es euch rein
 
