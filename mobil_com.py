@@ -58,7 +58,8 @@ class mobilcom:
                     baudrate=115200,
                     timeout=None)
                 com_open_success = True
-            except:
+            except Exception as e:
+                print(e)
                 com_index += 1
                 if com_index > len(self.usbcoms):
                     com_index = 0

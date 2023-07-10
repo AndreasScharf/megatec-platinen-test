@@ -17,7 +17,8 @@ GFS_SERIAL_NUMBER = '99455960-01-228-00498'
 PATH_TO_DOCS = '/home/pi/TestLogs'
 
 hw = sys.argv[1] if len(sys.argv) >= 2 else 'pi'
-path = './' if len(sys.argv) >= 2 and sys.argv[1] == 'win' else '/home/pi/Documents/test'
+# path = './' if len(sys.argv) >= 2 and sys.argv[1] == 'win' else '/home/pi/Documents/test'
+path = './'
 
 if not hw == 'win':
     
@@ -52,9 +53,9 @@ class Log():
         self.i2cAdressen = tk.StringVar(window)
         self.i2c = []
         
-        self.digtal_inputs = ['def'] * 8
+        self.digital_inputs = ['def'] * 8
     
-        self.digtal_outputs = ""
+        self.digital_outputs = ""
 
         self.analog_inputs = ""
         self.analog_output_current = ""
@@ -71,8 +72,8 @@ class Log():
             i2c_txt = i2c_txt + '{}: {}\n'.format(hex(e[0]), e[1]) 
         
         di_txt = ''
-        for i in range(len(self.digtal_inputs)):
-            e = self.digtal_inputs[i]
+        for i in range(len(self.digital_inputs)):
+            e = self.digital_inputs[i]
             di_txt = di_txt + 'DI{}: {}\n'.format(i, e)
         
         now = datetime.now()  # current date and time
@@ -112,7 +113,7 @@ Test am {date}
                 serialnr=self.serialnr.get(),
                 i2c=i2c_txt, 
                 di=di_txt, 
-                do=self.digtal_outputs,
+                do=self.digital_outputs,
                 ai=self.analog_inputs,
                 
                 aoc = self.analog_output_current,
@@ -189,10 +190,9 @@ class App:
         self.clearFrame(self.body)
 
         self.navigator.setTitle("I2C Adressen")
-
-       
         
         neededI2CAdresses = [0x20, 0x21, 0x46, 0x47, 0x48, 0x49, 0x4a, 0x4b, 0x63]
+        neededI2CIndexes = list(range(9))
         
         i2cLabels = []
         
@@ -215,11 +215,11 @@ class App:
 
                     list_i2c = i2c.scan()
                     
-                    if i < len(neededI2CAdresses):
+                    for idx, i in reversed(list(enumerate(neededI2CIndexes))):
                         if neededI2CAdresses[i] in list_i2c:
                             i2cLabels[i].configure(fg='green')
                             self.log.i2c[i][1] = 'ok'
-                        i = i + 1
+                            del neededI2CIndexes[idx]
 
             finally:  # unlock the i2c bus when ctrl-c'ing out of the loop
                 if not hw == 'win':
@@ -264,11 +264,9 @@ class App:
                     di = digital_inputs[i]
                     if (read_byte & (0x1 << i)) and 1:
                         di.configure(fg='green')
-                        
-                        self.log.analog_inputs[i] = 'ok'
-                        
+                        self.log.digital_inputs[i] = 'ok'
           
-            self.looper = self.body.after(1000, readDigitalInputs)
+            self.looper = self.body.after(250, readDigitalInputs)
             
         readDigitalInputs()
         
@@ -332,7 +330,7 @@ class App:
         def next():
             now = datetime.now()  # current date and time
 
-            self.log.digtal_outputs = 'Digitale Outputs haben alle geschalten \nBestätigt um {}'.format(
+            self.log.digital_outputs = 'Digitale Outputs haben alle geschalten \nBestätigt um {}'.format(
                 now.strftime('%Y-%m-%d %H:%M:%S'))
             self.loadAnalogInputs()
         
@@ -341,13 +339,12 @@ class App:
         
     def loadAnalogInputs(self):
         
-        
         self.clearFrame(self.body)
         self.navigator.setTitle("Analoge Eingänge")
         
         ais = []
         if not hw == 'win':
-            a = AnoPi(adresses=[0x46, 0x48, 0x47, 0x4B, 0x49, 0x4A])
+            a = AnoPi(adresses=[0x46, 0x48, 0x47, 0x4B, 0x4A, 0x49])
         
         for i in range(6):
             l = Label(master=self.body, text="AI {}: \t{:.2f}V \t{:.2f}mA".format(
@@ -357,7 +354,7 @@ class App:
             l.pack()
             ais.append(l)
             
-        def readDigitalInputs():
+        def readAnalogInputs():
             print('read analog inputs')
             
             for i in range(6):
@@ -369,9 +366,9 @@ class App:
                 ais[i].configure(text="AI {}: \t{:.2f}V \t{:.2f}mA".format(i, v, mA))
                         
           
-            self.looper = self.body.after(1000, readDigitalInputs)
+            self.looper = self.body.after(1000, readAnalogInputs)
             
-        readDigitalInputs()
+        readAnalogInputs()
         
         def next():
             now = datetime.now()  # current date and time
@@ -420,7 +417,7 @@ class App:
 
         if not hw == 'win':
             io_expander_dac = expander(0x21, 0x00)
-            io_expander_dac.write_port_A(0x80)  # 0-10V output
+            io_expander_dac.write_port_A(0x86)  # 0-10V output
             
             dac = DAC()
             dac.write(80) #make 80 percent on the current output
